@@ -1,0 +1,12 @@
+5/22/19
+
+	- read papers on HHI definitions
+
+	- read papers on prowess data
+		- how do people code products in prowess?
+
+	- research Indian FTC
+
+ The CMIE database is not well suited for understanding firm entry and exit because firms are under no
+legal obligation to report to the data collecting agency. However, since Prowess contains only the largest
+Indian firms, entry and exit is not necessarily an important margin for understanding these firms. 
