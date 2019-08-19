@@ -10,3 +10,57 @@
  The CMIE database is not well suited for understanding firm entry and exit because firms are under no
 legal obligation to report to the data collecting agency. However, since Prowess contains only the largest
 Indian firms, entry and exit is not necessarily an important margin for understanding these firms. 
+
+
+Before the competition commission: Monopolies & Restrictive Trade Practices Commission, no teeth??
+
+
+
+Think about the laws and institutions around shareholders...
+	weak legal protection for minority shareholders
+
+NEW STUFF
+
+
+
+From Nishith Desai report:
+
+Competition Act prescribes financial thresholds linked
+with assets / turnover for the purposes
+of determining whether a transaction is a ‘combination’,
+and CCI approval is required only for combinations.
+Recently, vide notification dated March 4, 2016, the CCI
+has increased the thresholds for the purposes of section
+5 of the Competition Act. A transaction that satisfies any
+of the following tests is a combination:-
+An acquisition where the parties to the acquisition, i.e.
+the acquirer and the target, jointly have:
+§ Test 1: India Asset Test and India Turnover Test - in
+India (i) assets higher than INR 2,000 crore; or (ii)
+turnover higher than INR 6,000 crore; or
+§ Test 2: Global Asset Test and Global Turnover
+Test - Total assets in India or outside higher than
+USD 1 billion of which assets in India should be
+higher than INR 1,000 crores; or (ii) total turnover
+in India or outside is higher than USD 3 billion
+of which turnover in India should be higher than
+INR3,000crores; OR
+The acquirer group58 would have –
+§ Test 1: India Asset Test and India Turnover Test - in
+India (i) assets higher than INR 8, 000 crores; or (ii)
+turnover higher than INR 24,000 crores; or
+§ Test 2: Global Asset Test and Global Turnover Test -
+(i) Total assets in India or outside higher than USD 4
+billion of which assets in India are higher than INR
+1,000 crores; or (ii) total turnover in India or outside
+is higher than USD 12 billion of which turnover in
+India should be higher than INR 3,000 crores.
+B.Small Company Exemption
+On March 4, 2016 vide a notification, the CCI has
+increased the de-minimis thresholds for small
+companies. Now an exemption has been granted to
+companies which have assets of less than INR 350
+crores or turnover of less than INR 1,000 crores in India
+(“SME Exemption”). However, this exemption is only
+valid for a period of five years and is available until
+March 04, 2021.
