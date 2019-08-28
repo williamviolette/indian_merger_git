@@ -1,9 +1,3 @@
-version 14.0 
-set more off 
-cd "K:\BE\1255\Projects\Indian Mergers\work\data\original"
-global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financials"
-
-
 //Company Information 
 
 	* identity data: what do the company and firm codes look like??
@@ -24,6 +18,7 @@ global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financia
 	* "ho"  = home office  
 	* do we care about SoEs? (State or National) vs privately owned? (Able to ID foreign owned) field: owner_code 
 
+save "company_info.dta", replace 
 
 //Product Section
 
@@ -43,14 +38,6 @@ global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financia
 	destring `v', replace 
 	}
 
-
-	*validate sales/prod numbers w/ annual statements
-	keep if co_code == 221166
-	collapse (sum) production sales_qty purchase_qty ///
-	purchase_val sales_value, by(products_product_code year)
-
-	sort products_product_code year
-
 	bys products_product_code: g pn=_n
 	count if pn==1
 
@@ -58,6 +45,7 @@ global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financia
 	bys product_name_mst: g pnn=_n
 	count if pnn==1
 
+save "product_info.dta", replace 
 
 
 //Merger Section 
@@ -66,7 +54,7 @@ global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financia
 
 	import delimited "34294_1_220_20190509_182020_dat.txt",  delimiter("|") clear  bindquotes(nobind) 
 
-	keep co_code company_name mr_info_full_name entity_name_mst acquirer owner_gp_name me_acquirer_product_gp_code product_name_mst
+	keep co_code company_name me_date_of_info mr_info_full_name entity_name_mst acquirer owner_gp_name me_acquirer_product_gp_code product_name_mst
 	tab mr_info_full_name
 
 	gen m_ind = 0
@@ -95,6 +83,8 @@ global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financia
 	scatter yNt year if ynt==1 & type==2 || ///
 	scatter yNt year if ynt==1 & type==3 
 
+save "merger_events.dta", replace 
+
 *Merger 
 
 	import delimited "34294_1_215_20190509_182020_dat.txt",  delimiter("|") clear  bindquotes(nobind) 
@@ -110,6 +100,7 @@ global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financia
 	replace m_ind =1 if mr_info_full_name == "Merger"
 		tab m_ind 
 
+save "merger_info.dta", replace 
 
 //Annual Financials 
 * identity data: what do the company and firm codes look like??
@@ -121,14 +112,10 @@ g year = substr(string(sa_finance1_year,"%12.0g"),1,4)
 
 destring year, replace
 
-	*validate sales/prod numbers w/ annual statements
-	keep if co_code == 221166
-	
 	ds *, has(type string)
 	foreach x of varlist `=r(varlist)' {
 		replace `x' ="." if `x' =="NA" 
 		destring `x', replace 
 		}
-	
 
-	TESTTTESTTEST
+save "annual_financials.dta", replace 
