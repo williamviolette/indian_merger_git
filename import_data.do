@@ -33,10 +33,12 @@ save "company_info.dta", replace
 	sort co_code year 
 	drop clubflag* 
 
-	foreach v of varlist production purchase_qty purchase_val sales_qty sales_val {
-	replace `v' ="." if `v' =="NA" 
-	destring `v', replace 
-	}
+	ds *, has(type string)
+	foreach x of varlist `=r(varlist)' {
+		replace `x' ="." if `x' =="NA" | `x' =="ER"
+		destring `x', replace 
+		}
+
 
 	bys products_product_code: g pn=_n
 	count if pn==1
@@ -96,14 +98,13 @@ save "merger_events.dta", replace
 	replace asset_ind = 1 if mr_info_full_name =="Sale of asset" 
 
 	gen m_ind = 0
-	replace m_ind = 1 if(regexm(company_name, "MERGED"))
+	replace m_ind =1 if(regexm(company_name, "MERGED"))
 	replace m_ind =1 if mr_info_full_name == "Merger"
 		tab m_ind 
 
 save "merger_info.dta", replace 
 
 //Annual Financials 
-* identity data: what do the company and firm codes look like??
 import delimited "$sa\34294_1_70_20190509_182020_dat.txt", delimiter("|") clear  bindquotes(nobind) 
 
 ren (sa_finance1_cocode sa_company_name) (co_code company_name) 
@@ -114,7 +115,7 @@ destring year, replace
 
 	ds *, has(type string)
 	foreach x of varlist `=r(varlist)' {
-		replace `x' ="." if `x' =="NA" 
+		replace `x' ="." if `x' =="NA" | `x' =="ER"
 		destring `x', replace 
 		}
 
