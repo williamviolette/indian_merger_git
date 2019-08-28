@@ -3,7 +3,7 @@ set more off
 cd "K:\BE\1255\Projects\Indian Mergers\work\data\original"
 global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financials"
 
-
+** will was here
 //Company Information 
 
 	* identity data: what do the company and firm codes look like??
