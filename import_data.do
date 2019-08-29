@@ -2,7 +2,9 @@
 
 	* identity data: what do the company and firm codes look like??
 	import delimited "34294_1_5_20190509_182020_dat.txt", delimiter("|") clear  bindquotes(nobind) 
-
+	
+	keep if co_industry_type =="1" //drops non-banking finance companies and banks 
+	
 	* There are company codes
 	* AND owner group codes!
 
@@ -18,6 +20,12 @@
 	* "ho"  = home office  
 	* do we care about SoEs? (State or National) vs privately owned? (Able to ID foreign owned) field: owner_code 
 
+	preserve 
+	keep co_code
+	duplicates drop
+	save "company_list.dta", replace 
+	restore
+	 
 save "company_info.dta", replace 
 
 //Product Section
@@ -46,6 +54,8 @@ save "company_info.dta", replace
 	cap drop pnn
 	bys product_name_mst: g pnn=_n
 	count if pnn==1
+
+	sort product_name 
 
 save "product_info.dta", replace 
 

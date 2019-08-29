@@ -21,7 +21,6 @@ gain_sale_of_ast = sale of fixed asset. Not part of main business activity
 
 */  
 
-
 	*validate sales/prod numbers w/ annual statements
 	keep if co_code == 221166
 	
