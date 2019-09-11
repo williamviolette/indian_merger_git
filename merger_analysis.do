@@ -24,12 +24,17 @@ duplicates drop
 gen na_check = 0
 replace na_check =1 if product_name_mst =="NA" 
 
+bys acquirer target_co year month product_name_mst: gen n_prods = _n ==1 
+bys acquirer target_co year month: egen N_prod = total(n_prods) 
+
+drop n_prods 
+
 bys acquirer target_co year product_name_mst: gen n_merge = _n ==1  
-bys acquirer target_co year month: egen N_merge = total(n_merge)
+replace n_merge =0 if N_prod>1 & n_merge != 0 & na_check ==1 
 
- 
-sort acquirer target_co year 
+sort acquirer target_co year month
 
+save "n_merge.dta", replace 
 *issues: company codes are different for same company name. Owner GP name not consistent with same company name. 
 
 preserve 
@@ -37,15 +42,18 @@ collapse (sum) n_merge, by(product_name_mst product_id year) fast
 
 sort product_name_mst year
 twoway(bar n_merge year, sort)
-graph export "n_merge_graph.pdf", replace 
+graph export "$gpath\n_merge_graph.pdf", replace 
+
+sort product_name_mst year
+twoway(bar n_merge year if product_name_mst != "NA", sort)
+graph export "$gpath\n_merge_graph_NA.pdf", replace 
 
 /*levelsof product_id, local(levels)
 foreach l of local levels {
 twoway(bar n_merge year if product_id == `l', sort)
-graph export "n_`l'_merge.pdf", replace 
+graph export "$gpath\n_`l'_merge.pdf", replace 
 }
 */ 
-
 save "ay_n_merge.dta", replace  
 restore  
 
