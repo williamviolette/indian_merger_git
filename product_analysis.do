@@ -1,5 +1,18 @@
-use product_info.dta, clear   
+use product_info.dta, clear 
   
+//ID Acquired Companies whose sales did/did not drop off 
+merge m:1 company_name year using "acquired_co.dta"
+*Why are we getting merge ==2 ?
+drop if _merge==2 
+drop _merge 
+replace merge_ind = 0 if merge_ind ==. 
+
+sort company_name year 
+
+keep co_code company_name year prod_date product_name product_name_mst sales_qty sales_value merge_ind 
+
+
+/* ID Service Companies / Products 
 merge m:1 co_code using "company_list.dta"  
 keep if _merge ==3 
 drop _merge   
@@ -26,7 +39,9 @@ sort product_name_mst product_name
 duplicates tag year product_name_mst co_code, gen(d_ind)  
 	tab d_ind  
 bys year product_name_mst: gen n_man = _n ==1  
- 
+*/ 
+
+//Calculate HHI 
 collapse (sum) sales_qty sales_val, by(co_code company_name product_name_mst year) 
  
 *this table includes companies with zero sales (remove?) 
