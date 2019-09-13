@@ -12,5 +12,8 @@ global exclude_banks = "1"
 
 //Do Files
 do import_data 
-do sales_validation
+do merger_analysis
+do product_analysis 
+do graphs 
+
 

@@ -14,7 +14,6 @@ ren entity_name_mst target_co
 order co_code acquirer target_co year month owner_gp_name target_co 
 
 //This is kicking out all mergers post 2009. 
-//Cant calculate HHI without knowing product market
 *drop if product_name_mst =="NA" 
 
 egen product_id = group(product_name_mst) 
@@ -53,34 +52,24 @@ sort product_name_mst year
 save "product_merge_stats.dta", replace 
 restore 
 
-preserve 
-collapse (sum) n_merge, by(year) fast 
-twoway(bar n_merge year, sort)
-graph export "$gpath\n_merge_graph.pdf", replace 
-restore 
-
-preserve 
-drop if product_name_mst =="NA" 
-collapse (sum) n_merge, by(year) fast 
-twoway(bar n_merge year, sort)
-graph export "$gpath\n_merge_graph_NA.pdf", replace 
-restore 
-
 preserve
-keep target_co product_name_mst year n_merge 
+keep target_co year n_merge 
 sort target_co year 
 duplicates drop
 drop if n_merge ==0
 ren (n_merge target_co) (merge_ind company_name)  
 save "acquired_co.dta", replace 
 restore 
-/*
-levelsof product_id, local(levels)
-foreach l of local levels {
-twoway(bar n_merge year if product_id == `l', sort)
-graph export "$gpath\n_`l'_merge.pdf", replace 
-}
-*/ 
 
+preserve 
 drop if owner_gp_name == "Private (Indian)" | owner_gp_name == "NA" /// 
 | owner_gp_name == "Private (Foreign)" 
+keep owner_gp_name target_co product_name_mst year n_merge 
+sort target_co year 
+duplicates drop
+drop if n_merge ==0
+ren (n_merge) (merge_ind) 
+order owner_gp_name  
+sort owner_gp_name target_co product_name_mst year 
+save "conglomerate_co_purchases.dta", replace 
+restore 

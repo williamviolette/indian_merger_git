@@ -1,4 +1,4 @@
-use product_info.dta, clear 
+use "product_info.dta", clear 
   
 //ID Acquired Companies whose sales did/did not drop off 
 merge m:1 company_name year using "acquired_co.dta"
@@ -7,12 +7,28 @@ drop if _merge==2
 drop _merge 
 replace merge_ind = 0 if merge_ind ==. 
 
-sort company_name year 
+keep co_code company_name year prod_date product_name_mst sales_qty sales_value merge_ind 
 
-keep co_code company_name year prod_date product_name product_name_mst sales_qty sales_value merge_ind 
+bys company_name: egen ay_merge = max(merge_ind) 
+keep if ay_merge ==1 
+duplicates drop 
+
+gen month =substr(string(prod_date,"%12.0g"),5,2)
+destring month, replace 
+
+sort company_name product_name_mst year month 
+
+bys company_name product_name_mst: gen n_minus_3_sales = sales_qty[_n-1] + sales_qty[_n-2] + sales_qty[_n-3] if merge_ind ==1 
+bys company_name product_name_mst: gen pct_chg_minus_3_sales = ((sales_qty[_n-3] - sales_qty[_n-1]) / sales_qty[_n-1])*100 if merge_ind ==1 
 
 
-/* ID Service Companies / Products 
+bys company_name product_name_mst: gen n_plus_3_sales = sales_qty[_n+1] + sales_qty[_n+2] + sales_qty[_n+3] if merge_ind ==1 
+bys company_name product_name_mst: gen pct_chg_plus_3_sales = ((sales_qty[_n+3] - sales_qty[_n+1]) / sales_qty[_n+1])*100 if merge_ind ==1 
+
+gen qty_drop = 0
+replace qty_drop =1 if pct_chg_n_3_sales <= -50
+/* 
+ID Service Companies / Products 
 merge m:1 co_code using "company_list.dta"  
 keep if _merge ==3 
 drop _merge   
@@ -50,9 +66,12 @@ drop if sales_qty ==0
  
 bys year company_name product_name_mst: gen n_man = _n == 1  
 
-*sales_val total sales or unit sales? Unsure. Assumging total sales. 
+*sales_val total sales or unit sales? Unsure. Assumging total sales.
 
-gen revenue = sales_val  
+*need to update exchange rates for each year, currently just using 2019
+gen exchange_rate = .014 
+gen sales_val_dol = sales_val * exchange_rate 
+gen revenue = sales_val_dol  
 bys year product_name_mst : egen sales_total = total(revenue) 
 bys year product_name_mst : gen mkt_sh = (revenue / sales_total) * 100 
  
