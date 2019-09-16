@@ -3,12 +3,17 @@ version 14.0
 set more off 
 
 cd "K:\BE\1255\Projects\Indian Mergers\work\data\original"
-
-capture log close
-log using indian_merger_log, replace 
-
 global sa "K:\BE\1255\Projects\Indian Mergers\work\data\original\Annual Financials"
+global gpath "K:\BE\1255\Projects\Indian Mergers\work\results\graphs" 
 
+//User Variables 
+
+global exclude_banks = "1" 
+
+//Do Files
 do import_data 
-do sales_validation
+do merger_analysis
+do product_analysis 
+do graphs 
+
 
