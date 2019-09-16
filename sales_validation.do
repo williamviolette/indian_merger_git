@@ -7,6 +7,8 @@ use "annual_financials.dta", clear
 	sa_inc_fin_serv sa_gain_sale_of_ast sa_inc_frm_discont_operations sa_inc_prof_sale_long_term_inv_s ///
 	sa_sales_n_chg_in_stk sa_net_sales sa_sales_net_fixed_assets 
 
+	gen year = substr(string(sa_finance1_year,"%12.0g"),1,4)
+	destring year, replace 
 /*
 
 total income = all income including investment income 
