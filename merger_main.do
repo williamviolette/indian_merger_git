@@ -15,11 +15,17 @@ keep acquirer target_co co_code mr_info_full_name company_name co_group_name pro
 order co_code company_name acquirer target_co year month 
 sort company_name year month 
 
-gen merge_ind =1 if mr_info_full_name == "Merger" 
-keep if merge_ind ==1 
-drop merge_ind 
-//This is kicking out all mergers post 2009. 
-*drop if product_name_mst =="NA" 
+gen name1 =regexs(1) if regexm(company_name,"^([A-Z0-9]+) ")
+gen name2 =regexs(1) if regexm(acquirer,"^([A-Z0-9]+) ")
+gen name3 =regexs(1) if regexm(target_co,"^([A-Z0-9]+) ")
+
+gen trans_p_ind = 0
+replace trans_p_ind =1 if name1 == name3 | name2 == name3
+//ADD CONGLOM MATCH LOGIC ^  
+
+*gen merge_ind =1 if mr_info_full_name == "Merger" 
+*keep if merge_ind ==1 
+*drop merge_ind 
 
 egen product_id = group(product_name_mst) 
 duplicates drop 
@@ -35,7 +41,7 @@ drop multi_month_ind1
 bys company_name target_co year month product_name_mst: gen n_prods = _n ==1 
 bys company_name target_co year month: egen N_prod = total(n_prods) 
 
-drop n_prods 
+drop n_prods name1 name2 name3
 
 bys company_name target_co year product_name_mst: gen n_merge = _n ==1 
 replace n_merge =0 if N_prod>1 & n_merge != 0 & na_check ==1 
@@ -73,5 +79,4 @@ ren (n_merge) (merge_ind)
 order owner_gp_name  
 sort owner_gp_name target_co product_name_mst year 
 save "conglomerate_co_purchases.dta", replace 
-
 restore 
