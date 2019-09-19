@@ -29,23 +29,49 @@ restore
 
 preserve
 keep if m_ind == 1  
-keep co_code company_name
-ren (company_name co_code) (target_co target_code)
+keep company_name owner_gp_name
+ren (company_name owner_gp_name) (target_co targ_gp)
 replace target_co = subinstr(target_co, " [MERGED]", "",.) 
 replace target_co = subinstr(target_co, "[MERGED]", "",.) 
 bys target_co: gen n_codes = _n ==1 
 drop if n_codes ==0 
+drop n_codes
 save "acq_company_list1.dta", replace 
 restore
 
 preserve
-keep if m_ind == 0
-keep co_code company_name
-ren (company_name co_code) (target_co target_code)
+keep if m_ind == 1  
+keep company_name owner_gp_name
+ren (company_name owner_gp_name) (target_co targ_gp)
 bys target_co: gen n_codes = _n ==1 
-drop if n_codes ==0 
+drop if n_codes ==0
+drop n_codes 
 save "acq_company_list2.dta", replace 
 restore
+
+preserve
+keep if m_ind == 0  
+keep company_name owner_gp_name
+ren (company_name owner_gp_name) (target_co targ_gp)
+bys target_co: gen n_codes = _n ==1 
+drop if n_codes ==0
+drop n_codes 
+save "company_list1.dta", replace 
+restore
+
+
+use "acq_company_list1.dta", clear 
+append using "acq_company_list2.dta"
+append using "company_list1.dta"
+sort target_co
+duplicates drop 
+duplicates tag target_co, gen(id)
+drop if id ==1 & targ_gp =="Private (Indian)"
+drop if id ==1 & targ_gp =="Private (Foreign)"
+replace targ_gp = "Bangur P.D./B.G. Group" if targ_gp =="Bangur G.D. Group"
+duplicates drop 
+drop id 
+save "acq_co_list.dta", replace 
 
 //Product Section
 
