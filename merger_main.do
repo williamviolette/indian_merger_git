@@ -24,14 +24,16 @@ keep acquirer target_co mr_info_full_name co_group_name product_name_mst year mo
 order acquirer target_co year month 
 sort acquirer year month 
 
+//Match first name of acquirer to target company to ID companies who were buying themselves. 
 *gen name1 =regexs(1) if regexm(company_name,"^([A-Z0-9]+) ")
 gen name2 =regexs(1) if regexm(acquirer,"^([A-Z0-9]+) ")
 gen name3 =regexs(1) if regexm(target_co,"^([A-Z0-9]+) ")
 
-gen trans_p_ind = 0
-*replace trans_p_ind =1 if name1 == name3
-replace trans_p_ind =1 if name2 == name3
-replace trans_p_ind =1 if co_group_name == targ_gp & targ_gp != "NA" & targ_gp != "Private (Indian)" & targ_gp != "Private (Foreign)"
+gen internal_purchase_ind = 0
+*replace internal_purchase_ind =1 if name1 == name3
+replace internal_purchase_ind =1 if name2 == name3
+*Companies in same conglomerate may not share same first name. Match conglomerate fields from acquirer and target company 
+replace internal_purchase_ind =1 if co_group_name == targ_gp & targ_gp != "NA" & targ_gp != "Private (Indian)" & targ_gp != "Private (Foreign)"
 drop name*
 
 *gen merge_ind =1 if mr_info_full_name == "Merger" 
@@ -62,7 +64,7 @@ sort acquirer target_co year month
 save "n_merge.dta", replace 
 
 preserve
-keep target_co year n_merge trans_p_ind
+keep target_co year n_merge internal_purchase_ind
 sort target_co year 
 drop if n_merge ==0 
 sort target_co year
@@ -75,12 +77,7 @@ save "acquired_co.dta", replace
 restore 
 
 preserve 
-keep owner_gp_name target_co product_name_mst year n_merge 
-sort target_co year 
-duplicates drop
-drop if n_merge ==0
-ren (n_merge) (merge_ind) 
-order owner_gp_name  
-sort owner_gp_name target_co product_name_mst year 
-save "conglomerate_co_purchases.dta", replace 
+keep acquirer target_co product_name_mst 
+duplicates drop 
+save "ay_acquirer_target_list.dta", replace
 restore 

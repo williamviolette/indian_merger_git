@@ -1,12 +1,11 @@
 use "product_info.dta", clear 
 
-//ID Acquired Companies whose sales did/did not drop off 
 *Product Name MST is NA for "Merger" indicator in merger file. 
 *Not using product_name_mst in merge -> not completely accurate. Esp for conglomerates who are in multiple industries. 
 merge m:1 company_name using "acquired_co.dta"
 sort company_name 
+
 *Why are we getting merge ==2? We are using EARLIEST year company was acquired.
- 
 preserve
 keep if _merge ==2 
 keep company_name 
@@ -14,27 +13,38 @@ sort company_name
 save "unknown_co.dta", replace
 restore 
 
-drop if _merge==2 
-drop _merge 
-
+//Replace Unmatched with Zeros -- Logic will kick these out later. It seems like these companies only occur once. I dont see any product history. 
+replace sales_qty = 0 if _merge ==2 
+replace sales_value = 0 if _merge ==2 
 replace product_name_mst = "NA" if product_name_mst =="."
+replace internal_purchase_ind = 0 if internal_purchase_ind ==.
+
+gen month =substr(string(prod_date,"%12.0g"),5,2)
+destring month, replace 
+drop _merge 
 
 gen merge_ind =0
 replace merge_ind =1 if year == merge_year 
 
-*Acq1_cos.dta from misc.do file. These are companies that were acquired at some point but did not match by year. Assumed last year in product file was merge year (?) 
-*merge m:1 company_name year using "acq1_cos.dta"
-*drop _merge 
+gen int_purchase_ind =0
+replace int_purchase_ind =1 if year == merge_year & internal_purchase_ind ==1 
 
-keep co_code company_name year prod_date product_name_mst sales_qty sales_value merge_ind 
+bys company_name product_name_mst: gen n_prods = _n ==1 
+bys company_name: egen N_prod = total(n_prods)
 
+gen multi_prod_ind = 0
+replace multi_prod_ind =1 if N_prod > 1 
+
+collapse (sum) sales_qty sales_value (max) merge_ind int_purchase_ind multi_prod_ind, by(company_name product_name_mst year month)   
+
+sort company_name product_name_mst year 
+
+save "ay_merge_product.dta", replace 
+
+
+//Subset Acquired Companies - ID acquired companies whose sales did/did not drop off, potentially not a merge (?) 
 bys company_name: egen ay_merge = max(merge_ind) 
 keep if ay_merge ==1 
-
-gen month =substr(string(prod_date,"%12.0g"),5,2)
-destring month, replace 
-
-collapse (sum) sales_qty sales_value (max) merge_ind, by(company_name product_name_mst year month)   
 
 gen date = ym(year,month)
 
@@ -102,12 +112,13 @@ restore
 	
 	drop n_years merge_year_ind max_n_years n_years_post 
 	
-	//SALES QTY 
-	bys company_name product_name_mst: egen sales_qty_post = total(sales_qty) if post_merge_ind ==1
-	bys company_name product_name_mst: egen sales_qty_pre = total(sales_qty) if pre_merge_ind ==1 
 	
-	//SALES VALUE 
-	bys company_name product_name_mst: egen sales_val_post = total(sales_value) if post_merge_ind ==1
-	bys company_name product_name_mst: egen sales_val_pre = total(sales_value) if pre_merge_ind ==1
-	
+//SALES QTY 
+bys company_name product_name_mst: egen sales_qty_post = total(sales_qty) if post_merge_ind ==1
+bys company_name product_name_mst: egen sales_qty_pre = total(sales_qty) if pre_merge_ind ==1 
+
+//SALES VALUE 
+bys company_name product_name_mst: egen sales_val_post = total(sales_value) if post_merge_ind ==1
+bys company_name product_name_mst: egen sales_val_pre = total(sales_value) if pre_merge_ind ==1
+
 
