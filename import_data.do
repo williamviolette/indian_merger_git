@@ -1,32 +1,77 @@
 //Company Information 
 
-	* identity data: what do the company and firm codes look like??
-	import delimited "34294_1_5_20190509_182020_dat.txt", delimiter("|") clear  bindquotes(nobind) 
-	
-	keep if co_industry_type =="1" //drops non-banking finance companies and banks 
-	
-	* There are company codes
-	* AND owner group codes!
+* identity data: what do the company and firm codes look like??
+import delimited "34294_1_5_20190509_182020_dat.txt", delimiter("|") clear  bindquotes(nobind) 
 
-	* what do we know for mergers/acquisitions?
+	*keep if co_industry_type ===="1" //drops non-banking finance companies and banks 
 
 	keep co_code company_name state_code owner_code owner_gp_name co_industry_gp_code co_nic_code ///
 	incorporation_year hocity hoaddr hostate hopin corpaddr corpcity corpstate
-
-		gen m_ind = 0
-		replace m_ind = 1 if(regexm(company_name, "MERGED"))
-			tab m_ind 
-
-	* "ho"  = home office  
+	
+	gen conglom_ind = 1
+	replace conglom_ind =0 if owner_gp_name == "Private (Indian)" | owner_gp_name == "Private (Foreign)" | owner_gp_name == "Government Local Bodies" | owner_gp_name == "Joint Sector" | owner_gp_name == "State and Private sector" ///
+	| owner_gp_name == "State Road Transports" | owner_gp_name == "State Govt. - Statutory Bodies" | owner_gp_name == "State Govt. - Departmental Undertaking" | owner_gp_name == "State Govt. - Commercial Enterprises" | owner_gp_name == "State Electricity Boards" | owner_gp_name == "Central & State Governments" ///
+	| owner_gp_name == "Central Govt. - Commercial Enterprises" | owner_gp_name == "Central and Private sector" | owner_gp_name == "Central Govt. - Statutory Bodies" | owner_gp_name == "Central Govt. - Statutory Bodies" | owner_gp_name == "Central Govt. - Statutory Bodies" | owner_gp_name == "Central Govt. - Management Enterprises" | owner_gp_name == "Central Government - Takenover Enterprises" ///
+	| owner_gp_name == "Central Govt. - Departmental Undertaking" | owner_gp_name == "Co-operative Sector" 
+		
+	gen m_ind = 0
+	replace m_ind = 1 if(regexm(company_name, "MERGED"))
+	tab m_ind 
+	
 	* do we care about SoEs? (State or National) vs privately owned? (Able to ID foreign owned) field: owner_code 
 
-	preserve 
-	keep co_code
-	duplicates drop
-	save "company_list.dta", replace 
-	restore
-	 
-save "company_info.dta", replace 
+*ONLY one co_code per company_name. co_codes in this file will be the "origin" code used in later analyses to ID mergers etc. 
+preserve 
+keep co_code company_name owner_gp_name conglom_ind
+duplicates drop
+save "company_list.dta", replace 
+restore
+
+preserve
+keep if m_ind == 1  
+keep company_name owner_gp_name
+ren (company_name owner_gp_name) (target_co targ_gp)
+replace target_co = subinstr(target_co, " [MERGED]", "",.) 
+replace target_co = subinstr(target_co, "[MERGED]", "",.) 
+bys target_co: gen n_codes = _n ==1 
+drop if n_codes ==0 
+drop n_codes
+save "acq_company_list1.dta", replace 
+restore
+
+preserve
+keep if m_ind == 1  
+keep company_name owner_gp_name
+ren (company_name owner_gp_name) (target_co targ_gp)
+bys target_co: gen n_codes = _n ==1 
+drop if n_codes ==0
+drop n_codes 
+save "acq_company_list2.dta", replace 
+restore
+
+preserve
+keep if m_ind == 0  
+keep company_name owner_gp_name
+ren (company_name owner_gp_name) (target_co targ_gp)
+bys target_co: gen n_codes = _n ==1 
+drop if n_codes ==0
+drop n_codes 
+save "company_list1.dta", replace 
+restore
+
+
+use "acq_company_list1.dta", clear 
+append using "acq_company_list2.dta"
+append using "company_list1.dta"
+sort target_co
+duplicates drop 
+duplicates tag target_co, gen(id)
+drop if id ==1 & targ_gp =="Private (Indian)"
+drop if id ==1 & targ_gp =="Private (Foreign)"
+replace targ_gp = "Bangur P.D./B.G. Group" if targ_gp =="Bangur G.D. Group"
+duplicates drop 
+drop id 
+save "acq_co_list.dta", replace 
 
 //Product Section
 
