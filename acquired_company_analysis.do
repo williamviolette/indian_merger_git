@@ -5,26 +5,30 @@ use "product_info.dta", clear
 merge m:1 company_name using "acquired_co.dta"
 sort company_name 
 
-*Why are we getting merge ==2? We are using EARLIEST year company was acquired.
+*Why are we getting merge ==2? 
 preserve
 keep if _merge ==2 
-keep company_name 
-sort company_name
-save "unknown_co.dta", replace
+drop _merge 
+merge m:1 company_name using "acquired_co_2.dta"
+save "matched_acquired.dta", replace 
 restore 
 
-//Replace Unmatched with Zeros -- Logic will kick these out later. It seems like these companies only occur once. I dont see any product history. 
-replace sales_qty = 0 if _merge ==2 
-replace sales_value = 0 if _merge ==2 
+drop if _merge ==2 
+drop _merge 
+
+gen merge_ind =0
+replace merge_ind =1 if year == merge_year 
+
+*merge m:1 company_name year using "acquirer_co.dta"
+*drop if _merge ==2 
+*drop _merge 
+*replace acquirer ="NA" if merge_ind ==0
+
 replace product_name_mst = "NA" if product_name_mst =="."
 replace internal_purchase_ind = 0 if internal_purchase_ind ==.
 
 gen month =substr(string(prod_date,"%12.0g"),5,2)
 destring month, replace 
-drop _merge 
-
-gen merge_ind =0
-replace merge_ind =1 if year == merge_year 
 
 gen int_purchase_ind =0
 replace int_purchase_ind =1 if year == merge_year & internal_purchase_ind ==1 
@@ -35,12 +39,39 @@ bys company_name: egen N_prod = total(n_prods)
 gen multi_prod_ind = 0
 replace multi_prod_ind =1 if N_prod > 1 
 
-collapse (sum) sales_qty sales_value (max) merge_ind int_purchase_ind multi_prod_ind, by(company_name product_name_mst year month)   
+ren products_product_code product_code
+
+collapse (sum) sales_qty sales_value (max) merge_ind int_purchase_ind multi_prod_ind, by(company_name product_name_mst product_code year)   
 
 sort company_name product_name_mst year 
 
+//ID Number of Years from Merge to Last Year in Sample 
+	bys company_name product_name_mst: gen n_years = _n 
+	gen merge_year_ind = n_years * merge_ind 
+	bys company_name product_name_mst: egen max_n_years = max(n_years)
+	bys company_name product_name_mst: gen n_years_post = max_n_years - merge_year_ind if merge_year_ind != 0
+	bys company_name product_name_mst: replace n_years_post = n_years_post[_n-1] if n_years_post[_n-1] !=.
+	replace n_years_post = . if merge_ind ==1 
+	gen post_merge_ind = 1 if n_years_post !=. 
+	gen pre_merge_ind = 1 if n_years_post ==. & merge_ind ==0
+	
+	drop n_years merge_year_ind max_n_years n_years_post 
+	
+//SALES QTY 
+bys company_name product_name_mst: egen sales_qty_post = total(sales_qty) if post_merge_ind ==1
+bys company_name product_name_mst: egen sales_qty_pre = total(sales_qty) if pre_merge_ind ==1 
+
+//SALES VALUE 
+bys company_name product_name_mst: egen sales_val_post = total(sales_value) if post_merge_ind ==1
+bys company_name product_name_mst: egen sales_val_pre = total(sales_value) if pre_merge_ind ==1
+
+
 save "ay_merge_product.dta", replace 
 
+
+
+
+//Other Merger Analysis - Partial Mergers (?) 
 
 //Subset Acquired Companies - ID acquired companies whose sales did/did not drop off, potentially not a merge (?) 
 bys company_name: egen ay_merge = max(merge_ind) 
@@ -99,26 +130,5 @@ restore
 	egen group_ID = group(company_name product_name_mst) 
 
 	tsset group_ID date 
-
-	//ID Number of Years from Merge to Last Year in Sample 
-	bys company_name product_name_mst: gen n_years = _n 
-	gen merge_year_ind = n_years * merge_ind 
-	bys company_name product_name_mst: egen max_n_years = max(n_years)
-	bys company_name product_name_mst: gen n_years_post = max_n_years - merge_year_ind if merge_year_ind != 0
-	bys company_name product_name_mst: replace n_years_post = n_years_post[_n-1] if n_years_post[_n-1] !=.
-	replace n_years_post = . if merge_ind ==1 
-	gen post_merge_ind = 1 if n_years_post !=. 
-	gen pre_merge_ind = 1 if n_years_post ==. & merge_ind ==0
-	
-	drop n_years merge_year_ind max_n_years n_years_post 
-	
-	
-//SALES QTY 
-bys company_name product_name_mst: egen sales_qty_post = total(sales_qty) if post_merge_ind ==1
-bys company_name product_name_mst: egen sales_qty_pre = total(sales_qty) if pre_merge_ind ==1 
-
-//SALES VALUE 
-bys company_name product_name_mst: egen sales_val_post = total(sales_value) if post_merge_ind ==1
-bys company_name product_name_mst: egen sales_val_pre = total(sales_value) if pre_merge_ind ==1
 
 

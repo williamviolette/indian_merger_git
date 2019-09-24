@@ -67,17 +67,37 @@ preserve
 keep target_co year n_merge internal_purchase_ind
 sort target_co year 
 drop if n_merge ==0 
-sort target_co year
 *If multiple merger years, set earliest as merge year 
 bys target_co: gen n_years = _n 
 keep if n_years ==1 
-drop n_years 
+drop n_years n_merge
 ren (target_co year) (company_name merge_year)
 save "acquired_co.dta", replace 
 restore 
 
-preserve 
-keep acquirer target_co product_name_mst 
-duplicates drop 
-save "ay_acquirer_target_list.dta", replace
+preserve
+keep target_co year n_merge
+sort target_co year 
+drop if n_merge ==0 
+*If multiple merger years, set earliest as merge year 
+bys target_co: gen n_years = _n 
+keep if n_years ==1 
+drop n_years n_merge 
+replace target_co = subinstr(target_co, " [MERGED]", "",.) 
+replace target_co = subinstr(target_co, "[MERGED]", "",.) 
+ren (target_co year) (company_name merge_year)
+save "acquired_co_2.dta", replace 
 restore 
+
+preserve
+keep acquirer target_co year n_merge
+sort acquirer target_co year 
+drop if n_merge ==0 
+*If multiple merger years, set earliest as merge year 
+bys target_co: gen n_years = _n 
+keep if n_years ==1 
+drop n_years n_merge 
+ren target_co company_name
+save "acquirer_co.dta", replace 
+restore 
+
