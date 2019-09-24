@@ -1,3 +1,67 @@
+9/23/19
+
+notes on other prowess papers:
+
+- De Loecker et al. "Prices, Markups, and Trade Reform"  
+
+Product-level information is available for 85 percent of the
+manufacturing firms, which collectively account for more than 90 percent of Prowess’ manufacturing
+output and exports. Since product-level information and overall output are reported in separate
+modules, we can cross check the consistency of the data. Product-level sales comprise 99 percent of
+the (independently) reported manufacturing sales.
+
+The definition of a product is based on the CMIE’s internal product classification, which is
+based on India’s national industrial classification (NIC). There are 1,400 products in the sample
+for estimation
+
+5We have fewer products than in Goldberg et al. (2010b) because we require non-missing values for quantities
+and revenues rather than just a count of products, and drop small sectors that do not have enough observations to
+implement the methodology.
+
+The data also have some disadvantages. Unlike Census data, the CMIE database is not well
+suited for understanding firm entry and exit. However, Prowess contains mainly medium large
+Indian firms, so entry and exit is not necessarily an important margin for understanding the process
+of adjustment to increased openness within this subset of the manufacturing sector.
+
+6Firms in Prowess account for 60 to 70 percent of the economic activity in the organized industrial sector and
+comprise 75 percent of corporate taxes and 95 percent of excise duty collected by the Government of India (CMIE).
+
+we observe industry-wide deflated firm-level input expenditures rather than firm-level
+input quantities.
+
+Although Prowess uses an
+internal product classification that is based on the Harmonized System (HS) and National Industry
+Classification (NIC) schedules, our version of Prowess did not explicitly link the product names
+57
+reported by the firms to this classification. We hired two research assistants, working independently,
+to map the codes to the product names reported by firms. The research assistants assigned product
+codes with identical NIC codes in 80% of the cases, representing 91% of output. A third research
+assistant resolved the differences between the mappings done by the first two research assistants by
+again manually checking the classifications.
+
+-  Email them to get the NIC codes?  Do we get around 1,400 products (thereabouts) with the current 
+product definition?  Getting NICs codes will allow us to merge to ASI data (I would imagine)
+
+
+
+-   Bertrand et al. "FERRETING OUT TUNNELING: AN APPLICATION TO
+INDIAN BUSINESS GROUPS*"
+
+We rely on CMIE classification of firms into group and nongroup
+firms, and of group firms into specific group affiliation.
+CMIE classification is based on a “continuous monitoring of company
+announcements and a qualitative understanding of the
+groupwise behavior of individual companies” (Prowess Users’
+Manual, v.2, p.4). Note also that CMIE assigns each company to
+a unique ownership group, based on the group most closely associated
+with that company. Conversations with local experts corroborate
+these classifications; which group a firm belongs to is
+widely known
+
+
+
+
+
 5/22/19
 
 	- read papers on HHI definitions
