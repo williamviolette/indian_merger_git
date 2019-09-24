@@ -9,12 +9,16 @@ sort company_name
 preserve
 keep if _merge ==2 
 drop _merge 
-merge m:1 company_name using "acquired_co_2.dta"
+merge m:1 company_name merge_year using "acquired_co_2.dta"
+drop if _merge == 2 
+drop _merge 
 save "matched_acquired.dta", replace 
 restore 
 
 drop if _merge ==2 
 drop _merge 
+
+append using "matched_acquired.dta"
 
 gen merge_ind =0
 replace merge_ind =1 if year == merge_year 
@@ -68,8 +72,14 @@ bys company_name product_name_mst: egen sales_val_pre = total(sales_value) if pr
 
 save "ay_merge_product.dta", replace 
 
-
-
+preserve
+keep if post_merge_ind ==1 
+keep company_name product_name_mst year sales_value
+collapse (sum) sales_value, by(company_name product_name_mst) 
+bys company_name: egen product_rank = rank(-sales_value)  
+sort company_name product_rank
+save "company_product_sales_rank.dta", replace
+restore 
 
 //Other Merger Analysis - Partial Mergers (?) 
 
@@ -130,5 +140,3 @@ restore
 	egen group_ID = group(company_name product_name_mst) 
 
 	tsset group_ID date 
-
-

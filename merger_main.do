@@ -86,6 +86,9 @@ drop n_years n_merge
 replace target_co = subinstr(target_co, " [MERGED]", "",.) 
 replace target_co = subinstr(target_co, "[MERGED]", "",.) 
 ren (target_co year) (company_name merge_year)
+bys company_name: gen n_years = _n 
+drop if n_years ==2 
+drop n_years 
 save "acquired_co_2.dta", replace 
 restore 
 
@@ -100,4 +103,3 @@ drop n_years n_merge
 ren target_co company_name
 save "acquirer_co.dta", replace 
 restore 
-
