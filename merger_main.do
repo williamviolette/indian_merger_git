@@ -93,6 +93,7 @@ save "acquired_co_2.dta", replace
 restore 
 
 preserve
+drop if internal_purchase_ind ==1 
 keep acquirer target_co year n_merge
 sort acquirer target_co year 
 drop if n_merge ==0 
@@ -100,6 +101,25 @@ drop if n_merge ==0
 bys target_co: gen n_years = _n 
 keep if n_years ==1 
 drop n_years n_merge 
-ren target_co company_name
 save "acquirer_co.dta", replace 
 restore 
+
+use "acquirer_co.dta", clear 
+keep acquirer
+duplicates drop
+ren acquirer company_name 
+save "acq_list.dta", replace
+
+use "acquirer_co.dta", clear 
+keep target_co
+duplicates drop
+ren target_co company_name 
+save "targ_list.dta", replace
+
+use acq_list.dta, clear 
+append using "targ_list.dta" 
+duplicates drop
+egen co_id = group(company_name)
+save "company_crosswalk.dta", replace 
+
+

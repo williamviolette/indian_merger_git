@@ -5,20 +5,22 @@ use "product_info.dta", clear
 merge m:1 company_name using "acquired_co.dta"
 sort company_name 
 
-*Why are we getting merge ==2? 
-preserve
-keep if _merge ==2 
-drop _merge 
-merge m:1 company_name merge_year using "acquired_co_2.dta"
-drop if _merge == 2 
-drop _merge 
-save "matched_acquired.dta", replace 
-restore 
+//Why are we getting merge ==2? 
+*preserve
+*keep if _merge ==2 
+*drop _merge 
+*merge m:1 company_name merge_year using "acquired_co_2.dta"
+*replace product_name_mst = "NA" if _merge == 1
+*drop if _merge ==2
+*drop _merge 
+*save "matched_acquired.dta", replace 
+*restore 
 
+*append using "matched_acquired.dta"
+
+replace product_name_mst = "NA" if _merge == 1
 drop if _merge ==2 
 drop _merge 
-
-append using "matched_acquired.dta"
 
 gen merge_ind =0
 replace merge_ind =1 if year == merge_year 
@@ -69,12 +71,12 @@ bys company_name product_name_mst: egen sales_qty_pre = total(sales_qty) if pre_
 bys company_name product_name_mst: egen sales_val_post = total(sales_value) if post_merge_ind ==1
 bys company_name product_name_mst: egen sales_val_pre = total(sales_value) if pre_merge_ind ==1
 
-
-save "ay_merge_product.dta", replace 
+save "ay_merger_data.dta", replace 
 
 preserve
-keep if post_merge_ind ==1 
+keep if pre_merge_ind ==1 | merge_ind ==1 
 keep company_name product_name_mst year sales_value
+drop if product_name_mst =="NA" 
 collapse (sum) sales_value, by(company_name product_name_mst) 
 bys company_name: egen product_rank = rank(-sales_value)  
 sort company_name product_rank
