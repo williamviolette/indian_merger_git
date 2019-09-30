@@ -5,19 +5,6 @@ use "product_info.dta", clear
 merge m:1 company_name using "acquired_co.dta"
 sort company_name 
 
-//Why are we getting merge ==2? 
-*preserve
-*keep if _merge ==2 
-*drop _merge 
-*merge m:1 company_name merge_year using "acquired_co_2.dta"
-*replace product_name_mst = "NA" if _merge == 1
-*drop if _merge ==2
-*drop _merge 
-*save "matched_acquired.dta", replace 
-*restore 
-
-*append using "matched_acquired.dta"
-
 replace product_name_mst = "NA" if _merge == 1
 drop if _merge ==2 
 drop _merge 
@@ -47,6 +34,7 @@ replace multi_prod_ind =1 if N_prod > 1
 
 ren products_product_code product_code
 
+*qty/revenue collapsed on year 
 collapse (sum) sales_qty sales_value (max) merge_ind int_purchase_ind multi_prod_ind, by(company_name product_name_mst product_code year)   
 
 sort company_name product_name_mst year 
@@ -72,6 +60,8 @@ bys company_name product_name_mst: egen sales_val_post = total(sales_value) if p
 bys company_name product_name_mst: egen sales_val_pre = total(sales_value) if pre_merge_ind ==1
 
 save "ay_merger_sales_data.dta", replace 
+
+bys company_name: egen ay_merge_check = max(merge_ind)
 
 keep if pre_merge_ind ==1 | merge_ind ==1 
 keep company_name product_name_mst year sales_value

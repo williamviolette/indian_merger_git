@@ -4,7 +4,8 @@ preserve
 keep target_co year n_merge internal_purchase_ind
 sort target_co year 
 drop if n_merge ==0 
-*If multiple merger years, set earliest as merge year 
+*If multiple merger years with same acquirer and target company, set earliest year as merge year 
+**Big assumption
 bys target_co: gen n_years = _n 
 keep if n_years ==1 
 drop n_years n_merge

@@ -27,6 +27,8 @@ duplicates drop
 save "company_list.dta", replace 
 restore
 
+
+//Create list of companies with MERGED in the title and MERGED removed from the title 
 preserve
 keep if m_ind == 1  
 keep company_name owner_gp_name

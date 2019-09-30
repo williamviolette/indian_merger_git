@@ -1,5 +1,4 @@
 use "product_info.dta", clear 
-ssc install fs
 
 preserve
 keep company_name product_name_mst products_product_code 
@@ -38,7 +37,6 @@ drop product_name_mst sales_val product_code
 ren product_rank product_
 reshape wide product_, i(company_name) j(product_id)
 save "company_product_rank_matrix.dta", replace 
-
 
 use "acquirer_co.dta", clear 
 drop year
@@ -92,4 +90,8 @@ merge m:1 co_id using "company_crosswalk.dta"
 drop _merge 
 ren (company_name co_id) (target_co targ_co)
 order acquirer acq_co target_co targ_co
+
+drop if acquirer ==""
+collapse (sum) same_product, by(acquirer target_co)
+
 save "same_product_id.dta", replace 
