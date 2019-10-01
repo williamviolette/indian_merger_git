@@ -1,18 +1,11 @@
-use "product_info.dta", clear 
 
-preserve
-keep company_name product_name_mst products_product_code 
-ren products_product_code product_code 
-duplicates drop 
-drop if product_name_mst =="."
-sort company_name
+*use "company_product_list1.dta", clear 
+use "company_product_list2.dta", clear 
 merge m:1 company_name product_name_mst using "company_product_sales_rank.dta"
 keep if _merge ==3 
 drop _merge 
 drop if product_name_mst =="NA"
 sort company_name product_rank
-save "company_product_list.dta", replace 
-restore 
 
 preserve
 keep company_name product_name_mst products_product_code 
@@ -53,18 +46,25 @@ drop _merge
 ren (company_name co_id)(target_co target_code)
 save "merge_pairs.dta", replace 
 
-use "merge_pairs.dta"
+cd "K:\BE\1255\Projects\Indian Mergers\work\data\original"
+use "merge_pairs.dta", clear 
+keep if acquirer_code ==22892 
 levelsof acquirer_code, local(levels1)
 foreach l of local levels1 {
-preserve 
+*preserve 
 	keep if acquirer_code ==`l'
 	levelsof target_code, local(levels2) 
 		foreach m of local levels2 {
 			use "acquired_company_product_list.dta", clear
-			keep if co_id ==`l' | co_id ==`m'
-			if r(N) == 0 continue 
+			keep if co_id == 1954 | co_id ==22892 
+			*keep if co_id ==`l' | co_id ==`m'
+			
+			}
+			}
+			if r(N) == 0 continue, break 
 			bys product_name_mst: gen n_product = _N
 			capture noisily keep if n_product >1 
+			if r(N) == 0 continue, break 
 			gen target_code = `m'
 			keep if co_id ==`l'
 			drop product_rank

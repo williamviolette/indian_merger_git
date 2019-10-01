@@ -44,7 +44,7 @@ sort acquirer year
 gen na_check = 0
 replace na_check =1 if product_name_mst =="NA" 
 
-//Gen indicators for multi product merges or mergers that occur in diff. times 
+//Gen indicators for mergers that occur in diff. times 
 	sort acquirer target_co year  
 	bys acquirer target_co: gen multi_year_ind1 = _n ==1 
 	keep if multi_year_ind1 ==1

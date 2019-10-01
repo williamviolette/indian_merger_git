@@ -63,13 +63,14 @@ save "ay_merger_sales_data.dta", replace
 
 bys company_name: egen ay_merge_check = max(merge_ind)
 
-keep if pre_merge_ind ==1 | merge_ind ==1 
+*keep if pre_merge_ind ==1 | merge_ind ==1 
 keep company_name product_name_mst year sales_value
 drop if product_name_mst =="NA" 
 collapse (sum) sales_value, by(company_name product_name_mst) 
 bys company_name: egen product_rank = rank(-sales_value)  
 sort company_name product_rank
 save "company_product_sales_rank.dta", replace
+
 
 
 
