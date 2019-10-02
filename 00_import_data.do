@@ -129,7 +129,7 @@ save "product_info.dta", replace
 	bys year: g yn=_n
 
 
-	scatter yN year if yn==1
+	//scatter yN year if yn==1
 
 	egen type = group(mr_info_full_name)
 
@@ -138,9 +138,9 @@ save "product_info.dta", replace
 	bys year type: g yNt=_N
 	bys year type: g ynt=_n
 
-	scatter yNt year if ynt==1 & type==1 || ///
-	scatter yNt year if ynt==1 & type==2 || ///
-	scatter yNt year if ynt==1 & type==3 
+	//scatter yNt year if ynt==1 & type==1 || ///
+	//scatter yNt year if ynt==1 & type==2 || ///
+	//scatter yNt year if ynt==1 & type==3 
 
 save "merger_events.dta", replace 
 
