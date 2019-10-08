@@ -20,11 +20,13 @@ drop _merge
 
 	//Subset Acquired Companies - ID acquired companies whose sales did/did not drop off, potentially not a merge (?) 
 	bys company_name: egen ay_merge = max(merge_ind) 
-	keep if ay_merge ==1 )
+	keep if ay_merge ==1 
 
-	order company_name product_name_mst year 
-	sort company_name product_name_mst year 
-	
+	gen date = ym(year,month)
+
+	order company_name product_name_mst year month 
+	sort company_name product_name_mst year month 
+
 	*Save tables for aggregate statistics (number of mergers by industry) 
 	*not 100% accurate due to product_name_mst NA's and merge issues 
 	preserve
