@@ -56,6 +56,18 @@ drop multi_prod_ind pre_merge_ind post_merge_ind merge_ind multi_prod_ind
  
 save "ay_merger_sales_data.dta", replace 
 
+preserve 
+collapse (sum) sales_value, by(product_name_mst) fast
+egen rank = rank(-sales_value) 
+sort rank
+keep product_name_mst sales_value rank 
+ren sales_value sales_value_all_firms 
+save "product_sales_ranking.dta", replace 
+restore 
+	
+	
+	
+	
 *keep if pre_merge_ind ==1 | merge_ind ==1 
 keep company_name product_name_mst year sales_value
 *drop if product_name_mst =="NA" 
